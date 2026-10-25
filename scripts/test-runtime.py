@@ -9,13 +9,13 @@ def request(action):
    if not chunk:raise ConnectionError('control closed')
    data+=chunk
   return json.loads(data.split(b'\n')[0])
-log=(R/'build/runtime-test.log').open('w');p=subprocess.Popen([str(exe),'--background','--no-autostart','--no-shortcut','--no-widget-registration'],stdout=log,stderr=log)
+log=(R/'build/runtime-test.log').open('w');p=subprocess.Popen([str(exe),'--background','--no-autostart','--no-shortcut','--no-widget-registration','--smoke'],stdout=log,stderr=log)
 try:
  result=None
  for _ in range(70):
   try:result=request('status');break
   except (OSError,ValueError):time.sleep(.1)
- assert result and result['ok'] and result['featureAPI']==2 and result['pid']==p.pid
+ assert result and result['ok'] and result['featureAPI']==2 and result['pid']==p.pid and bool(result.get('summary'))
  assert stat.S_IMODE(os.stat('/tmp/cyan-modules-'+str(os.getuid())+'/'+m['id']+'.sock').st_mode)==0o600
  duplicate=subprocess.run([str(exe),'--background','--no-autostart','--no-shortcut','--no-widget-registration'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=12)
  assert duplicate.returncode==0 and request('status')['pid']==p.pid
