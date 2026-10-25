@@ -4,3 +4,4 @@ work/
 **/xcuserdata/
 __pycache__/
 .venv/
+native-integration-build.log

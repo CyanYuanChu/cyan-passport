@@ -2,10 +2,12 @@ import Foundation
 
 enum ModuleMigration {
     static func run(id: String) {
-        let defaults = UserDefaults.standard
-        guard !defaults.bool(forKey: "cyan.migration.v1") else { return }
+        let defaults = FeaturePreferences.shared
+        guard !defaults.bool(forKey: "cyan.migration.v2") else { return }
         let legacy = UserDefaults(suiteName: "local.gitgrove.native")
-        let keys: [String]
+        let previousID = ModuleMetadata.value["bundleID"] as! String
+        let previous = Bundle.main.bundleIdentifier == previousID ? UserDefaults.standard : UserDefaults(suiteName: previousID)
+        var keys: [String]
         switch id {
         case "cyan-command": keys = ["cyan.command.shortcut"]
         case "cyan-monitor": keys = ["cyan.menu.metrics"]
@@ -13,7 +15,9 @@ enum ModuleMigration {
         case "cyan-codex-usage": keys = ["cyan.codex.dailyPlan"]
         default: keys = []
         }
-        for key in keys where defaults.object(forKey: key) == nil { if let value = legacy?.object(forKey: key) { defaults.set(value, forKey: key) } }
+        if id == "cyan-codex-usage" { keys += legacy?.dictionaryRepresentation().keys.filter { $0.hasPrefix("cyan.comfort.") } ?? [] }
+        if id == "cyan-codex-usage" { keys += previous?.dictionaryRepresentation().keys.filter { $0.hasPrefix("cyan.comfort.") } ?? [] }
+        for key in Set(keys) where defaults.object(forKey: key) == nil { if let value = previous?.object(forKey: key) ?? legacy?.object(forKey: key) { defaults.set(value, forKey: key) } }
         let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         let pairs: [(String,String)]
         switch id {
@@ -29,7 +33,7 @@ enum ModuleMigration {
                     try FileManager.default.copyItem(at: src, to: dst); try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: dst.path)
                 }
             }
-            defaults.set(true, forKey: "cyan.migration.v1")
+            defaults.set(true, forKey: "cyan.migration.v2")
         } catch { fputs("配置迁移尚未完成，将在下次启动重试。\n", stderr) }
     }
 }

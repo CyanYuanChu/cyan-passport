@@ -1,13 +1,15 @@
 {
   "id": "cyan-passport",
   "name": "Cyan Passport",
-  "version": "0.1.0-preview.1",
+  "version": "0.2.0-preview.1",
   "bundleID": "io.github.cyanyuanchu.cyan-passport",
-  "protocolVersion": 1,
+  "protocolVersion": 2,
   "minMacOS": "14.0",
   "architecture": "arm64",
   "repository": "CyanYuanChu/cyan-passport",
   "appName": "Cyan Passport.app",
   "icon": "phone",
-  "description": "AI Passport 语音桥"
+  "description": "AI Passport 语音桥",
+  "moduleName": "cyan-passport.groveplugin",
+  "pluginBundleID": "io.github.cyanyuanchu.cyan-passport.feature"
 }

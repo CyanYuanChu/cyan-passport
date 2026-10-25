@@ -77,7 +77,7 @@ struct PassportModelResponse: Decodable { var models: [PassportModel] }
     private var timer: Timer?
     private var activity: NSObjectProtocol?
     var configured: Bool { ["server.pem", "server-key.pem", "token"].allSatisfy { FileManager.default.fileExists(atPath: Self.directory.appendingPathComponent($0).path) } }
-    var resourceDirectory: URL? { Bundle.main.url(forResource: "PassportBridge", withExtension: nil) }
+    var resourceDirectory: URL? { FeatureResources.bundle.url(forResource: "PassportBridge", withExtension: nil) }
     var dirty: Bool { guard let data = try? Data(contentsOf: Self.configurationURL), let saved = try? JSONDecoder().decode(PassportConfiguration.self, from: data) else { return true }; return saved != configuration }
     init() { if let data = try? Data(contentsOf: Self.configurationURL), let saved = try? JSONDecoder().decode(PassportConfiguration.self, from: data) { configuration = saved } }
     func begin() {
@@ -133,7 +133,15 @@ struct PassportModelResponse: Decodable { var models: [PassportModel] }
         if configuration.keepAwake && running && activity == nil { activity = ProcessInfo.processInfo.beginActivity(options: [.idleSystemSleepDisabled], reason: "AI Passport 局域网语音桥") }
         if (!configuration.keepAwake || !running), let token = activity { ProcessInfo.processInfo.endActivity(token); activity = nil }
     }
+    private var legacyBridgeRunning: Bool {
+        let url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("CyanGrove/Passport/status.json")
+        guard let data = try? Data(contentsOf: url), let value = try? JSONSerialization.jsonObject(with: data) as? [String:Any],
+              let pid = value["pid"] as? Int32, pid > 0, let updated = value["updatedAt"] as? Double,
+              Date().timeIntervalSince1970 - updated < 12, value["state"] as? String != "stopped", value["managedBy"] as? String == "cyangrove" else { return false }
+        return kill(pid, 0) == 0
+    }
     func start() async {
+        guard !legacyBridgeRunning else { error = "旧版语音桥仍在运行。请先结束并停止旧版通话，再在 Grove 中启动桥接。"; return }
         guard !busy else { return }; refresh(); guard !running else { return }
         guard save() else { return }
         guard let resources = resourceDirectory else { error = "应用内的桥接组件缺失，请重新安装当前构建。"; return }
