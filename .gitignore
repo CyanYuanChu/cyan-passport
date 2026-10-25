@@ -1,0 +1,6 @@
+build/
+work/
+.DS_Store
+**/xcuserdata/
+__pycache__/
+.venv/

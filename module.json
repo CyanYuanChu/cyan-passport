@@ -1,0 +1,13 @@
+{
+  "id": "cyan-passport",
+  "name": "Cyan Passport",
+  "version": "0.1.0-preview.1",
+  "bundleID": "io.github.cyanyuanchu.cyan-passport",
+  "protocolVersion": 1,
+  "minMacOS": "14.0",
+  "architecture": "arm64",
+  "repository": "CyanYuanChu/cyan-passport",
+  "appName": "Cyan Passport.app",
+  "icon": "phone",
+  "description": "AI Passport 语音桥"
+}

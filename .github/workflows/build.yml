@@ -1,0 +1,9 @@
+name: build
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  macos:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/build.sh
+      - run: ./scripts/check.sh

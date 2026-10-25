@@ -1,0 +1,7 @@
+sounddevice==0.5.6
+pyserial==3.5
+cryptography==50.0.2
+aiortc==1.15.0
+
+zeroconf==0.151.5
+faster-whisper==1.2.1
